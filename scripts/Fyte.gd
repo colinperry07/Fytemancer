@@ -36,7 +36,7 @@ var moveset = [] # this will be based on the type
 var energy_produced # also based on the type
 
 # enums for calculating different values
-enum FyteType { PYRO, GEO, ELEKTRO, HYDRO, PETRA }
+enum FyteType { HELIO, NYCTO, GALEN, ANOMO, CHRONO, BIO }
 
 enum FyteRating { # the rating of the Fyte based on it's IV
 	ZERO = 50,
