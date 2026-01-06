@@ -2,6 +2,7 @@ extends KinematicBody2D
 
 
 # overworld variables
+var dir = 0
 export var move_speed = 222
 export var accel = 0.125
 const GRAVITY = 75
@@ -54,6 +55,7 @@ enum CatchDifficulty {
 }
 
 
+
 func _ready():
 	randomize() # initializes random seed
 	
@@ -84,6 +86,7 @@ func calculate_individual_value():
 			rating = FyteRating.find_key(value)
 			break
 
+
 func calculate_catch_rate(): # calculates catch rate based on the Fyte's stamina stat value
 	var difficulty = stats['stamina']/.15
 	for value in CatchDifficulty.values():
@@ -108,19 +111,19 @@ func _physics_process(delta):
 		FyteState.IDLE:
 			velocity.x = lerp(velocity.x, 0, accel)
 		FyteState.MOVING:
-			var rng = randi() % 2
-			var dir = 0
-			match rng:
+			velocity.x = lerp(velocity.x, move_speed*dir, accel)
+
+
+func _on_StateTimer_timeout(): # changes the movement state every second
+	if current_state == FyteState.MOVING:
+		$StateTimer.wait_time = 0.5
+		current_state = FyteState.IDLE
+	else: 
+		$StateTimer.wait_time = 3
+		var rng = randi() % 2
+		match rng:
 				0:
 					dir = -1
 				1:
 					dir = 1
-			velocity.x = lerp(velocity.x, move_speed*dir, accel)
-	
-
-
-func _on_StateTimer_timeout():
-	if current_state == FyteState.MOVING:
-		current_state = FyteState.IDLE
-	else:
 		current_state = FyteState.MOVING
