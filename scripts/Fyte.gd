@@ -1,6 +1,21 @@
 extends KinematicBody2D
 
 
+# overworld variables
+export var move_speed = 222
+export var accel = 0.125
+const GRAVITY = 75
+const MAX_FALL_SPEED = 1200
+var velocity = Vector2.ZERO
+
+enum FyteState {
+	IDLE,
+	MOVING
+}
+
+var current_state = FyteState.IDLE
+
+# combat/ranching variables
 const MAX_STAT_VALUE = 15
 
 var stats = { # stat name -> id
@@ -76,3 +91,36 @@ func calculate_catch_rate(): # calculates catch rate based on the Fyte's stamina
 			catch_rate = CatchDifficulty.find_key(value)
 			break
 
+
+func _physics_process(delta):
+	
+	if is_on_floor(): # apply gravity
+		velocity.y = 0
+	else:
+		if velocity.y >= MAX_FALL_SPEED:
+			velocity.y = MAX_FALL_SPEED
+		else:
+			velocity.y += GRAVITY
+	
+	velocity = move_and_slide(velocity, Vector2.UP)
+	
+	match current_state: # manage movement state
+		FyteState.IDLE:
+			velocity.x = lerp(velocity.x, 0, accel)
+		FyteState.MOVING:
+			var rng = randi() % 2
+			var dir = 0
+			match rng:
+				0:
+					dir = -1
+				1:
+					dir = 1
+			velocity.x = lerp(velocity.x, move_speed*dir, accel)
+	
+
+
+func _on_StateTimer_timeout():
+	if current_state == FyteState.MOVING:
+		current_state = FyteState.IDLE
+	else:
+		current_state = FyteState.MOVING
