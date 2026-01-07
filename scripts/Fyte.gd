@@ -11,7 +11,8 @@ var velocity = Vector2.ZERO
 
 enum FyteState {
 	IDLE,
-	MOVING
+	WANDER,
+	BEING_SIPHONED
 }
 
 var current_state = FyteState.IDLE
@@ -29,7 +30,6 @@ var hp # not sure how this is going to be calculated or come into play yet. but 
 var iv # individual value, calculates the fufillment of the random stats
 
 var rating # this is the star rating of the Fyte
-var catch_rate # this is the likelihood of catching the Fyte
 
 var type # the type of fyte it is of type FyteType
 var moveset = [] # this will be based on the type
@@ -46,33 +46,28 @@ enum FyteRating { # the rating of the Fyte based on it's IV
 	FOUR = 101
 } 
 
-enum CatchDifficulty {
-	GUARENTEED = 10,
-	EASY = 25,
-	MEDIUM = 50,
-	HARD = 75,
-	IMPOSSIBLE = 100
-}
-
-
 
 func _ready():
 	randomize() # initializes random seed
+	distribute_stat_points()
+	calculate_individual_value()
+
+
+func distribute_stat_points():
 	
-	# distributes stats randomly
 	var unallocated_points = randi() % 46 # picks a random amount of points between none and max stat points
 	var keys = stats.keys() # gets the keys in the stats dict
-	while unallocated_points > 0: # loops through and adds points to random stats for the total amount of points
+	
+	# loops through and adds points to random stats for the total amount of points
+	while unallocated_points > 0: 
 		var key = keys[randi() % len(keys)]
 		if stats[key]< MAX_STAT_VALUE:
 			stats[key] += 1
 			unallocated_points -= 1
-	
-	calculate_individual_value()
-	calculate_catch_rate()
 
 
 func calculate_individual_value():
+	
 	# calculates the total IV (Individual Value) of this Fyte
 	var keys = stats.keys()
 	var total = 0
@@ -84,14 +79,6 @@ func calculate_individual_value():
 	for value in FyteRating.values():
 		if iv < value:
 			rating = FyteRating.find_key(value)
-			break
-
-
-func calculate_catch_rate(): # calculates catch rate based on the Fyte's stamina stat value
-	var difficulty = stats['stamina']/.15
-	for value in CatchDifficulty.values():
-		if difficulty < value:
-			catch_rate = CatchDifficulty.find_key(value)
 			break
 
 
@@ -108,22 +95,12 @@ func _physics_process(delta):
 	velocity = move_and_slide(velocity, Vector2.UP)
 	
 	match current_state: # manage movement state
+		
 		FyteState.IDLE:
 			velocity.x = lerp(velocity.x, 0, accel)
-		FyteState.MOVING:
-			velocity.x = lerp(velocity.x, move_speed*dir, accel)
-
-
-func _on_StateTimer_timeout(): # changes the movement state every second
-	if current_state == FyteState.MOVING:
-		$StateTimer.wait_time = 0.5
-		current_state = FyteState.IDLE
-	else: 
-		$StateTimer.wait_time = 3
-		var rng = randi() % 2
-		match rng:
-				0:
-					dir = -1
-				1:
-					dir = 1
-		current_state = FyteState.MOVING
+			
+		FyteState.WANDERING:
+			pass
+			
+		FyteState.BEING_SIPHONED:
+			pass
