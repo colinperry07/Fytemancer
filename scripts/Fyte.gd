@@ -1,8 +1,12 @@
 extends KinematicBody2D
 
 
+onready var collision_shape = $CollisionShape2D
+
 # overworld variables
 var siphoned = false
+var being_siphoned = false
+
 var dir = 0
 export var move_speed = 222
 export var accel = 0.125
@@ -12,8 +16,7 @@ var velocity = Vector2.ZERO
 
 enum FyteState {
 	IDLE,
-	WANDER,
-	BEING_SIPHONED
+	WANDER
 }
 
 var current_state = FyteState.IDLE
@@ -83,27 +86,36 @@ func calculate_individual_value():
 			break
 
 
-func _physics_process(delta):
-	if !siphoned:
-		if is_on_floor(): # apply gravity
-			velocity.y = 0
-		else:
-			if velocity.y >= MAX_FALL_SPEED:
-				velocity.y = MAX_FALL_SPEED
-			else:
-				velocity.y += GRAVITY
+func _physics_process(_delta):
+	
+	if !being_siphoned:
+		apply_gravity()
 		
 		velocity = move_and_slide(velocity, Vector2.UP)
+		
+	if !siphoned:
+		
+		visible = true
+		collision_shape.disabled = false
 		
 		match current_state: # manage movement state
 			
 			FyteState.IDLE:
 				velocity.x = lerp(velocity.x, 0, accel)
 				
-			FyteState.WANDERING:
+			FyteState.WANDER:
 				pass
-				
-			FyteState.BEING_SIPHONED:
-				print('being siphoned')
+			
 	else:
 		visible = false
+		collision_shape.disabled = true
+
+
+func apply_gravity():
+	if is_on_floor(): # apply gravity
+			velocity.y = 0
+	else:
+		if velocity.y >= MAX_FALL_SPEED:
+			velocity.y = MAX_FALL_SPEED
+		else:
+			velocity.y += GRAVITY
