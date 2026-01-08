@@ -2,6 +2,7 @@ extends KinematicBody2D
 
 
 # overworld variables
+var siphoned = false
 var dir = 0
 export var move_speed = 222
 export var accel = 0.125
@@ -83,24 +84,24 @@ func calculate_individual_value():
 
 
 func _physics_process(delta):
-	
-	if is_on_floor(): # apply gravity
-		velocity.y = 0
-	else:
-		if velocity.y >= MAX_FALL_SPEED:
-			velocity.y = MAX_FALL_SPEED
+	if !siphoned:
+		if is_on_floor(): # apply gravity
+			velocity.y = 0
 		else:
-			velocity.y += GRAVITY
-	
-	velocity = move_and_slide(velocity, Vector2.UP)
-	
-	match current_state: # manage movement state
+			if velocity.y >= MAX_FALL_SPEED:
+				velocity.y = MAX_FALL_SPEED
+			else:
+				velocity.y += GRAVITY
 		
-		FyteState.IDLE:
-			velocity.x = lerp(velocity.x, 0, accel)
+		velocity = move_and_slide(velocity, Vector2.UP)
+		
+		match current_state: # manage movement state
 			
-		FyteState.WANDERING:
-			pass
-			
-		FyteState.BEING_SIPHONED:
-			pass
+			FyteState.IDLE:
+				velocity.x = lerp(velocity.x, 0, accel)
+				
+			FyteState.WANDERING:
+				pass
+				
+			FyteState.BEING_SIPHONED:
+				print('being siphoned')
