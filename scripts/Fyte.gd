@@ -105,3 +105,5 @@ func _physics_process(delta):
 				
 			FyteState.BEING_SIPHONED:
 				print('being siphoned')
+	else:
+		visible = false
