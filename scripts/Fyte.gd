@@ -88,27 +88,24 @@ func calculate_individual_value():
 
 func _physics_process(_delta):
 	
-	if !being_siphoned:
-		apply_gravity()
-		
-		velocity = move_and_slide(velocity, Vector2.UP)
-		
-	if !siphoned:
-		
-		visible = true
-		collision_shape.disabled = false
-		
-		match current_state: # manage movement state
-			
-			FyteState.IDLE:
-				velocity.x = lerp(velocity.x, 0, accel)
-				
-			FyteState.WANDER:
-				pass
-			
-	else:
+	# checks if the fyte is either in the siphoning cone while its siphoning or if its siphoned to disable gravity
+	
+	if !being_siphoned and !siphoned:
+		apply_gravity() # self explanatory
+	
+	# constantly moves the fyte towards net zero movement across the x axis and applies the velocity to the fyte
+	velocity.x = lerp(velocity.x, 0, accel)
+	velocity = move_and_slide(velocity, Vector2.UP)
+	
+	# if the fyte is in FyteSiphon it will be invisible and collision disabled
+	# this is easier to do than completely removing the fyte
+	# it removes the need for saving the fyte's stats when it just saves the fyte itself
+	if siphoned:
 		visible = false
 		collision_shape.disabled = true
+	elif !siphoned:
+		visible = true
+		collision_shape.disabled = false
 
 
 func apply_gravity():
