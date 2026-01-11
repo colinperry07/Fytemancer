@@ -2,12 +2,14 @@ extends Node2D
 
 
 var siphon_speed = 4
+var shot_speed = 1000
 var siphoning = false
 
 var siphonable_fytes = []
 var fytes_in_siphon = []
 
 onready var collection_area = $CollectionArea
+onready var shot_point = $ShotPoint
 
 var previous_fyte_state = null
 
@@ -31,6 +33,21 @@ func _physics_process(_delta):
 		if siphonable_fytes != []:
 			for fyte in siphonable_fytes:
 				fyte.being_siphoned = false
+	
+	if Input.is_action_pressed("SHOOT"):
+		
+		if fytes_in_siphon != []:
+			for fyte in fytes_in_siphon:
+				
+				fyte.global_position = shot_point.global_position
+				fyte.siphoned = false
+				
+				# doesnt work :/
+				var shot_dir = (shot_point.global_position - fyte.global_position).normalized()
+				fyte.velocity += shot_dir * shot_speed
+				
+				fytes_in_siphon.erase(fyte)
+				yield(get_tree().create_timer(0.1), "timeout")
 
 
 func _on_SiphoningCone_body_entered(body):
@@ -48,4 +65,5 @@ func _on_CollectionArea_body_entered(body):
 	if body in siphonable_fytes and siphoning:
 		fytes_in_siphon.append(body)
 		body.siphoned = true
+		body.being_siphoned = false
 		siphonable_fytes.erase(body)
