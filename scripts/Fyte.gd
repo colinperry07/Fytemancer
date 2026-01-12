@@ -10,8 +10,8 @@ var being_siphoned = false
 var dir = 0
 export var move_speed = 222
 export var accel = 0.125
-const GRAVITY = 75
-const MAX_FALL_SPEED = 1200
+const GRAVITY = 0.075
+const MAX_FALL_SPEED = 2500
 var velocity = Vector2.ZERO
 
 enum FyteState {
@@ -89,17 +89,10 @@ func calculate_individual_value():
 func _physics_process(_delta):
 	
 	# checks if the fyte is either in the siphoning cone while its siphoning or if its siphoned to disable gravity
-	
 	if !being_siphoned and !siphoned:
 		apply_gravity() # self explanatory
 	
-	
-	match current_state:
-		"IDLE":
-			velocity.x = lerp(velocity.x, 0, accel)
-		"SHOT":
-			pass
-	
+	velocity.x = lerp(velocity.x, 0, accel)
 	velocity = move_and_slide(velocity, Vector2.UP)
 	
 	# if the fyte is in FyteSiphon it will be invisible and collision disabled
@@ -116,8 +109,5 @@ func _physics_process(_delta):
 func apply_gravity():
 	if is_on_floor(): # apply gravity
 			velocity.y = 0
-	else:
-		if velocity.y >= MAX_FALL_SPEED:
-			velocity.y = MAX_FALL_SPEED
-		else:
-			velocity.y += GRAVITY
+	else: # makes it to where fyte can only fall a certain speed
+		velocity.y = lerp(velocity.y, MAX_FALL_SPEED, GRAVITY)
