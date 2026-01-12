@@ -10,9 +10,14 @@ var velocity = Vector2.ZERO
 
 # node variables
 onready var fyte_siphon = $FyteSiphon
-
+onready var animated_sprite = $AnimatedSprite
 
 func _physics_process(_delta):
+	
+	if fyte_siphon.global_rotation_degrees >= -90 and fyte_siphon.global_rotation_degrees <= 90:
+		fyte_siphon.flip_srite = false
+	else:
+		fyte_siphon.flip_srite = true
 	
 	movement_logic()
 
@@ -22,8 +27,14 @@ func movement_logic():
 	var dir = 0
 	if Input.is_action_pressed("LEFT"):
 		dir -= 1
-	if Input.is_action_pressed("RIGHT"):
+		animated_sprite.play("WALKING")
+		animated_sprite.flip_h = true
+	elif Input.is_action_pressed("RIGHT"):
 		dir += 1
+		animated_sprite.play("WALKING")
+		animated_sprite.flip_h = false
+	else:
+		animated_sprite.play("IDLE")
 
 	if dir != 0:
 		velocity.x = lerp(velocity.x, speed*dir, accel)
