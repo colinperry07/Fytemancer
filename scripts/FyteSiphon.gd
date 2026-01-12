@@ -2,8 +2,8 @@ extends Node2D
 
 export var flip_srite = false
 
-var siphon_speed = 4
-var shot_speed = 100
+var siphon_strength = 100
+var shot_speed = 2500
 
 var siphoning = false
 
@@ -31,7 +31,7 @@ func _physics_process(_delta):
 			for fyte in siphonable_fytes:
 				fyte.being_siphoned = true
 				var siphon_dir = (collection_area.global_position - fyte.global_position).normalized()
-				fyte.global_position += siphon_dir * siphon_speed
+				fyte.velocity += siphon_dir * siphon_strength
 	
 	elif Input.is_action_just_released("SIPHON"):
 		siphoning = false
@@ -40,20 +40,23 @@ func _physics_process(_delta):
 			for fyte in siphonable_fytes:
 				fyte.being_siphoned = false
 	
-	if Input.is_action_pressed("SHOOT"):
+	if Input.is_action_just_pressed("SHOOT"):
 		
 		if fytes_in_siphon != []:
 			for fyte in fytes_in_siphon:
-				
-				fyte.global_position = shot_point.global_position
-				fyte.siphoned = false
-				
-				# doesnt work :/
-				var shot_dir = (shot_point.global_position - get_global_mouse_position()).normalized()
-				fyte.velocity += shot_dir * shot_speed
-				
-				fytes_in_siphon.erase(fyte)
+				shoot_fyte(fyte)
 				yield(get_tree().create_timer(0.2), "timeout")
+
+
+func shoot_fyte(fyte_body):
+	
+	fyte_body.global_position = shot_point.global_position
+	fyte_body.siphoned = false
+	
+	var shot_dir = (get_global_mouse_position() - shot_point.global_position).normalized()
+	fyte_body.velocity += shot_dir * shot_speed
+	
+	fytes_in_siphon.erase(fyte_body)
 
 
 func _on_SiphoningCone_body_entered(body):
