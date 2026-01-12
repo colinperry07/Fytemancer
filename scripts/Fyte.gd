@@ -93,8 +93,13 @@ func _physics_process(_delta):
 	if !being_siphoned and !siphoned:
 		apply_gravity() # self explanatory
 	
-	# constantly moves the fyte towards net zero movement across the x axis and applies the velocity to the fyte
-	velocity.x = lerp(velocity.x, 0, accel)
+	
+	match current_state:
+		"IDLE":
+			velocity.x = lerp(velocity.x, 0, accel)
+		"SHOT":
+			pass
+	
 	velocity = move_and_slide(velocity, Vector2.UP)
 	
 	# if the fyte is in FyteSiphon it will be invisible and collision disabled
