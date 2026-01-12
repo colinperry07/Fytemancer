@@ -5,7 +5,7 @@ export var speed = 676
 export var accel = 0.125
 export var jump = 1000
 const GRAVITY = 75
-const MAX_FALL_SPEED = 1200
+const MAX_FALL_SPEED = 2500
 var velocity = Vector2.ZERO
 
 # node variables
